@@ -34,3 +34,4 @@ static/images/dx-os-logo.svg
 integrations/LocalMiniDrama/example_drama/
 integrations/LocalMiniDrama/项目截图/
 third_party/shot-composer/.npm-cache/
+_git_*
