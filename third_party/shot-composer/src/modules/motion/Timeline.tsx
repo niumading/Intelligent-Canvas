@@ -1,0 +1,121 @@
+import { useRef } from "react";
+import { useComposerStore } from "../../stores/composerStore";
+
+export function Timeline() {
+  const selectedObjectId = useComposerStore((s) => s.selectedObjectId);
+  const objects = useComposerStore((s) => s.objects);
+  const selectedKeyframeId = useComposerStore((s) => s.selectedKeyframeId);
+  const duration = useComposerStore((s) => s.playback.duration);
+  const elapsed = useComposerStore((s) => s.playback.elapsed);
+  const selectKeyframe = useComposerStore((s) => s.selectKeyframe);
+  const selectObject = useComposerStore((s) => s.selectObject);
+  const addKeyframe = useComposerStore((s) => s.addKeyframe);
+  const deleteKeyframe = useComposerStore((s) => s.deleteKeyframe);
+  const moveKeyframeTime = useComposerStore((s) => s.moveKeyframeTime);
+  const beginHistoryGroup = useComposerStore((s) => s.beginHistoryGroup);
+  const endHistoryGroup = useComposerStore((s) => s.endHistoryGroup);
+
+  const trackRef = useRef<HTMLDivElement>(null);
+  const object = objects.find((o) => o.id === selectedObjectId) ?? null;
+
+  function timeAt(clientX: number): number {
+    const track = trackRef.current;
+    if (!track) return 0;
+    const rect = track.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    return ratio * duration;
+  }
+
+  function handleTrackDoubleClick(e: React.MouseEvent) {
+    if (!object) return;
+    addKeyframe(object.id, timeAt(e.clientX));
+  }
+
+  function handleMarkerPointerDown(e: React.PointerEvent, keyframeId: string) {
+    if (!object) return;
+    e.stopPropagation();
+    beginHistoryGroup();
+    const onMove = (ev: PointerEvent) => moveKeyframeTime(object.id, keyframeId, timeAt(ev.clientX));
+    const onUp = () => {
+      endHistoryGroup();
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }
+
+  const selectedKeyframe = object?.keyframes.find((k) => k.id === selectedKeyframeId);
+
+  // Every object animates concurrently off the same shared timeline — this row
+  // is just a quick way to see which entities have a track and jump between
+  // them, not a per-track lane view. Only worth showing once there's more than
+  // one object to switch between.
+  const trackSwitcher = objects.length > 1 && (
+    <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+      {objects.map((o) => (
+        <button
+          key={o.id}
+          onClick={() => selectObject(o.id)}
+          title={`${o.keyframes.length} 个关键帧`}
+          style={{
+            fontSize: 11, padding: "3px 8px", borderRadius: 4,
+            border: o.id === selectedObjectId ? "1px solid #4ade80" : "1px solid var(--border)",
+            background: o.id === selectedObjectId ? "#1c2b20" : "transparent",
+            color: o.id === selectedObjectId ? "#4ade80" : "inherit",
+            opacity: o.keyframes.length > 1 ? 1 : 0.6,
+          }}
+        >
+          {o.type === "camera" ? "🎥 " : ""}{o.name} ({o.keyframes.length})
+        </button>
+      ))}
+    </div>
+  );
+
+  if (!object) {
+    return (
+      <div style={{ padding: "14px 24px", background: "var(--panel)", borderTop: "1px solid var(--border)" }}>
+        {trackSwitcher}
+        <div style={{ opacity: 0.6, fontSize: 13 }}>选择对象后可查看关键帧。</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: "14px 24px", background: "var(--panel)", borderTop: "1px solid var(--border)" }}>
+      {trackSwitcher}
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+        <span style={{ fontSize: 12, opacity: 0.7 }}>{object.name ?? object.id} — {object.keyframes.length} 个关键帧</span>
+        {selectedKeyframe && object.keyframes.length > 1 && (
+          <button onClick={() => deleteKeyframe(object.id, selectedKeyframe.id)}>删除关键帧</button>
+        )}
+      </div>
+      <div
+        ref={trackRef}
+        onDoubleClick={handleTrackDoubleClick}
+        style={{ position: "relative", height: 24, background: "#0d0f13", borderRadius: 4, cursor: "copy" }}
+      >
+        <div
+          style={{
+            position: "absolute", top: 0, bottom: 0, left: `${duration > 0 ? (elapsed / duration) * 100 : 0}%`,
+            width: 1, background: "#e8e8e8", pointerEvents: "none",
+          }}
+        />
+        {object.keyframes.map((kf) => (
+          <div
+            key={kf.id}
+            onPointerDown={(e) => handleMarkerPointerDown(e, kf.id)}
+            onClick={(e) => { e.stopPropagation(); selectKeyframe(kf.id); }}
+            title={`${kf.time.toFixed(2)}s`}
+            style={{
+              position: "absolute", top: "50%", left: `${duration > 0 ? (kf.time / duration) * 100 : 0}%`,
+              width: 10, height: 10, marginLeft: -5, marginTop: -5,
+              background: kf.id === selectedKeyframeId ? "#f87171" : "#4ade80",
+              transform: "rotate(45deg)", cursor: "grab",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
