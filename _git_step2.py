@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+import io, os, subprocess
+
+ROOT = r"D:\桌面\wuxianhuabu2"
+log = []
+
+def G(args, timeout=600):
+    r = subprocess.run(["git"] + args, cwd=ROOT, capture_output=True, text=True,
+                       timeout=timeout, env={**os.environ, "GIT_TERMINAL_PROMPT": "0",
+                                             "GCM_INTERACTIVE": "Never"})
+    log.append("$ git %s -> rc=%d" % (" ".join(args[:3]), r.returncode))
+    if r.stdout: log.append("  out: " + r.stdout.strip()[:800])
+    if r.stderr: log.append("  err: " + r.stderr.strip()[:800])
+    return r.returncode, r.stdout, r.stderr
+
+G(["commit", "-m", "Intelligent Canvas: initial commit\n\nLocal AI creation canvas for company use.\nRenamed from the original project; original author references removed."])
+G(["remote", "add", "origin", "https://github.com/niumading/Intelligent-Canvas.git"])
+G(["push", "-u", "origin", "main"], timeout=1200)
+
+with io.open(os.path.join(ROOT, "_git_step2.md"), "w", encoding="utf-8") as f:
+    f.write("\n".join(log))
+print("done")

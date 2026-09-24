@@ -1,0 +1,35 @@
+# Local credentials and user data
+API/.env
+**/.env
+**/.env.local
+data/
+assets/
+output/
+history.json
+*.log
+*.db
+
+# Bundled runtimes and installed dependencies
+python/
+integrations/runtime/node_modules/
+**/node_modules/
+**/dist/
+**/__pycache__/
+integrations/.npm-cache/
+
+# Local short drama settings
+integrations/LocalMiniDrama/backend-node/configs/config.yaml
+integrations/LocalMiniDrama/backend-node/data/
+
+# License review pending for the separate integration
+integrations/emotion-director/
+
+# Unused legacy visual asset
+static/images/dx-os-logo.svg
+
+# Assistant workspace notes
+.workbuddy/
+
+# Upstream sample media of LocalMiniDrama (LFS objects not available)
+integrations/LocalMiniDrama/example_drama/
+integrations/LocalMiniDrama/项目截图/
