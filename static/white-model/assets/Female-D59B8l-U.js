@@ -1,0 +1,1 @@
+import{t as e}from"./Mannequin-CgV9rf2h.js";var t=class extends e{constructor(e=1.65){super(!0,e),this.name=`Female`,this.l_leg.straddle-=4,this.r_leg.straddle-=4,this.l_ankle.tilt-=4,this.r_ankle.tilt-=4,this.stepOnGround()}};export{t as Female};

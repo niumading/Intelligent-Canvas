@@ -2,15 +2,16 @@
 API/.env
 **/.env
 **/.env.local
-data/
-assets/
-output/
+/data/
+/assets/
+/output/
 history.json
 *.log
 *.db
 
 # Bundled runtimes and installed dependencies
 python/
+/.venv/
 integrations/runtime/node_modules/
 **/node_modules/
 **/dist/

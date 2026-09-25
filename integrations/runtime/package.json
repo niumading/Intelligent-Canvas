@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "node": "^22.17.1"
+  },
+  "allowScripts": {
+    "node@22.17.1": true
   }
 }

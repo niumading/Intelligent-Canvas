@@ -40,8 +40,10 @@ echo "本机访问： http://127.0.0.1:3000/"
 echo "============================================"
 echo ""
 
-# 优先使用 Homebrew Python，避免部分工具管理的 Python 签名问题
-if [ -x /opt/homebrew/bin/python3 ]; then
+# 优先使用项目虚拟环境，其次使用 Homebrew Python
+if [ -x .venv/bin/python3 ]; then
+    .venv/bin/python3 main.py
+elif [ -x /opt/homebrew/bin/python3 ]; then
     /opt/homebrew/bin/python3 main.py
 elif [ -x /usr/local/bin/python3 ]; then
     /usr/local/bin/python3 main.py

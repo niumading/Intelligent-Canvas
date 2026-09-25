@@ -1,0 +1,26 @@
+app:
+  name: LocalMiniDrama
+  version: 1.2.8
+
+server:
+  host: 127.0.0.1
+  port: 5679
+  cors_origins:
+    - http://127.0.0.1:3013
+    - http://localhost:3013
+    - http://127.0.0.1:5680
+    - http://localhost:5680
+  insecure_tls: false
+
+database:
+  path: ./data/drama_generator.db
+
+storage:
+  local_path: ./data/storage
+
+language: zh
+
+style:
+  default_style: realistic
+  default_image_ratio: "16:9"
+  default_video_ratio: "16:9"
